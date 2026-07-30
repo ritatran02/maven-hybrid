@@ -3,6 +3,8 @@ package pageObjects;
 import org.openqa.selenium.WebDriver;
 import pageObjects.admin.AdminDashboardPO;
 import pageObjects.admin.AdminLoginPO;
+import pageObjects.saucelab.LoginPO;
+import pageObjects.saucelab.ProductPO;
 import pageObjects.user.*;
 
 public class PageGenerator {
@@ -44,5 +46,13 @@ public class PageGenerator {
 
     public static AdminDashboardPO getAdminDashboardPage(WebDriver driver){
         return new AdminDashboardPO(driver);
+    }
+
+    public static LoginPO getPage(WebDriver driver) {
+        return new LoginPO(driver);
+    }
+
+    public static ProductPO getProductPage(WebDriver driver) {
+        return new ProductPO(driver);
     }
 }

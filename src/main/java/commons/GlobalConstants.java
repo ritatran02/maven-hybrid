@@ -45,6 +45,5 @@ public class GlobalConstants {
 
     public static final String JIRA_SITE_URL = "https://thanhngan02.atlassian.net/" ;
     public static final String JIRA_USERNAME = "thanhngan060295@gmail.com";
-    public static final String JIRA_API_KEY = "ATATT3xFfGF0A2nmpLeUQm5hTSaH28SY2ooQ1_aVyxWZK6ZEjgwZMVaobanTcqVhxGYAjrXHcpfggVcJfvS4-yelNorgyBeivgaqPzRM4kruTJVSJz1vm2-r9o1SC1ckyBQblQ6emk_Sdc90eM0rC_v6gJdTp7UCJ8kW_hNc7Bx5qIeOvx-z-I8=5257DF9C";
     public static final String JIRA_PROJECT_KEY = "RT02";
 }

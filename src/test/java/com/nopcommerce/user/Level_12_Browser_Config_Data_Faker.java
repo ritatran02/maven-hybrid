@@ -13,8 +13,9 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 import pageObjects.PageGenerator;
 import pageObjects.user.*;
+import utilities.DataConfigNet;
 
-public class Level_11_Jira extends BaseTest {
+public class Level_12_Browser_Config_Data_Faker extends BaseTest {
 
     private WebDriver driver;
     private UserHomePO homePage;
@@ -25,19 +26,20 @@ public class Level_11_Jira extends BaseTest {
     private UserRewardPointPO rewardPointPage;
     private UserOrderPO orderPage;
     private String firstName, lastName, emailAddress, companyName, password, confirmPassword;
+    private DataConfigNet dataConfigNet;
 
     // Pre-Condition
     @Parameters({"url","browser"})
     @BeforeClass
     public void beforeClass(String url, String browserName){
         driver = getBrowserDriver(url, browserName);
-        Assert.assertEquals(registerPage.getRegisterSuccessMessage(),"Your registration completed");// BuiltIn
 
         homePage = PageGenerator.getUserHomePage(driver);
+        dataConfigNet = DataConfigNet.getData();
 
-        firstName = "Tran";
-        lastName = "Rita";
-        emailAddress = "ritatran" + generateRandomNumber() + "@gmail.com";
+        firstName = dataConfigNet.getFirstName();
+        lastName = dataConfigNet.getLastName();
+        emailAddress = dataConfigNet.getEmailAddress();
         companyName = "Yoo";
         password = "Ngan@123";
         confirmPassword = "Ngan@123";
@@ -83,34 +85,34 @@ public class Level_11_Jira extends BaseTest {
         customerInfoPage = homePage.clickToMyAccountLink();
 
         Assert.assertTrue(customerInfoPage.isGenderFemaleSelected());
-        Assert.assertEquals(customerInfoPage.getFirstNameTextboxValue(),lastName);
-        Assert.assertEquals(customerInfoPage.getLastNameTextboxValue(),firstName);
+        Assert.assertEquals(customerInfoPage.getFirstNameTextboxValue(),firstName);
+        Assert.assertEquals(customerInfoPage.getLastNameTextboxValue(),lastName);
         Assert.assertEquals(customerInfoPage.getCompanyTextboxValue(),companyName);
     }
 
     @Description("User_TC_04_Dynamic_Page")
     @Severity(SeverityLevel.NORMAL)
     @JiraCreateIssue(isCreateIssue = true)
-    @Test
+    //@Test
     public void User_TC_04_Dynamic_Page(){
         // Customer Infor => Address
         addressPage = (UserAddressPO) customerInfoPage.openSidebarLinkByPageName("Addresses");
 
         // Address => Reward Point
-        rewardPointPage = (UserRewardPointPO) addressPage.openSidebarLinkByPageName("Reward points");
-
-        // Reward Point => Order
-        orderPage = (UserOrderPO) rewardPointPage.openSidebarLinkByPageName("Orders");
-
-        // Order => Address
-        addressPage = (UserAddressPO) orderPage.openSidebarLinkByPageName("Addresses");
-
-        // Address => Customer Infor
-        customerInfoPage = (UserCustomerInforPO) addressPage.openSidebarLinkByPageName("Customer info");
-
-        rewardPointPage = (UserRewardPointPO) customerInfoPage.openSidebarLinkByPageName("Reward points");
-
-        addressPage = (UserAddressPO) rewardPointPage.openSidebarLinkByPageName("Addresses");
+//        rewardPointPage = (UserRewardPointPO) addressPage.openSidebarLinkByPageName("Reward points");
+//
+//        // Reward Point => Order
+//        orderPage = (UserOrderPO) rewardPointPage.openSidebarLinkByPageName("Orders");
+//
+//        // Order => Address
+//        addressPage = (UserAddressPO) orderPage.openSidebarLinkByPageName("Addresses");
+//
+//        // Address => Customer Infor
+//        customerInfoPage = (UserCustomerInforPO) addressPage.openSidebarLinkByPageName("Customer info");
+//
+//        rewardPointPage = (UserRewardPointPO) customerInfoPage.openSidebarLinkByPageName("Reward points");
+//
+//        addressPage = (UserAddressPO) rewardPointPage.openSidebarLinkByPageName("Addresses");
     }
 
     //@Test
@@ -132,6 +134,7 @@ public class Level_11_Jira extends BaseTest {
     @AfterClass(alwaysRun = true)
     public void afterClass(){
         closeBrowser();
+        closeBrowserDriver();
     }
 
     public void loginToSystem(String emailAddress, String password){

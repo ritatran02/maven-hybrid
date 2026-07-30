@@ -3,14 +3,19 @@ package commons;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.testng.Reporter;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.LogManager;
 
@@ -27,13 +32,45 @@ public class BaseTest {
         BrowserList browserList = BrowserList.valueOf(browserName.toUpperCase());
         switch (browserList) {
             case FIREFOX:
-                driver = new FirefoxDriver();
+                FirefoxOptions firefoxOptions = new FirefoxOptions();
+                firefoxOptions.addArguments("-private");
+                firefoxOptions.addPreference("browser.download.folderList", 2);
+                firefoxOptions.addPreference("browser.download.dir", GlobalConstants.DOWNLOAD_PATH + "\\downloadFiles");
+                firefoxOptions.addPreference("browser.download.useDownloadDir", true);
+                firefoxOptions.addPreference("browser.helperApps.neverAsk.saveToDisk", "multipart/x-zip,application/zip,application/x-zip-compressed,application/x-compressed,application/msword,application/csv,text/csv,image/png ,image/jpeg, application/pdf, text/html, text/plain,  application/excel, application/vnd.ms-excel, application/x-excel, application/x-msexcel, application/octet-stream");
+                firefoxOptions.addPreference("pdfjs.disabled", true);
+                driver = new FirefoxDriver(firefoxOptions);
                 break;
             case CHROME:
-                driver = new ChromeDriver();
+                ChromeOptions chromeOptions = new ChromeOptions();
+                chromeOptions.addArguments("--incognito");
+                HashMap<String, Object> chromePrefs = new HashMap<String, Object>();
+                chromePrefs.put("profile.default_content_settings.popups", 0);
+                chromePrefs.put("download.default_directory", GlobalConstants.DOWNLOAD_PATH + "\\downloadFiles");
+                chromeOptions .setExperimentalOption("prefs", chromePrefs);
+                driver = new ChromeDriver(chromeOptions);
                 break;
             case EDGE:
-                driver = new EdgeDriver();
+                EdgeOptions edgeOptions = new EdgeOptions();
+                edgeOptions.addArguments("--inprivate");
+                break;
+            case HEAD_FIREFOX:
+                FirefoxOptions headFirefoxOptions = new FirefoxOptions();
+                headFirefoxOptions.addArguments("-headless");
+                headFirefoxOptions.addArguments("window-size=1920x1080");
+                driver = new FirefoxDriver(headFirefoxOptions);
+                break;
+            case HEAD_CHROME:
+                ChromeOptions headChromeOptions = new ChromeOptions();
+                headChromeOptions.addArguments("--headless");
+                headChromeOptions.addArguments("window-size=1920x1080");
+                driver = new ChromeDriver(headChromeOptions);
+                break;
+            case HEAD_EDGE:
+                EdgeOptions headEdgeOptions = new EdgeOptions();
+                headEdgeOptions.addArguments("--headless");
+                headEdgeOptions.addArguments("window-size=1920x1080");
+                driver = new EdgeDriver(headEdgeOptions);
                 break;
             default:
                 throw new RuntimeException("Browser name is not valid!");
@@ -120,6 +157,50 @@ public class BaseTest {
             }
         } catch (Exception e) {
             System.out.print(e.getMessage());
+        }
+    }
+
+    protected void closeBrowserDriver() {
+        String cmd = null;
+        try {
+            String osName = System.getProperty("os.name").toLowerCase();
+
+            String driverInstanceName = driver.toString().toLowerCase();
+
+            String browserDriverName = null;
+
+            if (driverInstanceName.contains("chrome")) {
+                browserDriverName = "chromedriver";
+            } else if (driverInstanceName.contains("firefox")) {
+                browserDriverName = "geckodriver";
+            } else if (driverInstanceName.contains("edge")) {
+                browserDriverName = "msedgedriver";
+            } else if (driverInstanceName.contains("opera")) {
+                browserDriverName = "operadriver";
+            } else {
+                browserDriverName = "safaridriver";
+            }
+
+            if (osName.contains("window")) {
+                cmd = "taskkill /F /FI \"IMAGENAME eq " + browserDriverName + "*\"";
+            } else {
+                cmd = "pkill " + browserDriverName;
+            }
+
+            if (driver != null) {
+                driver.manage().deleteAllCookies();
+                driver.quit();
+            }
+        } catch (Exception e) {
+        } finally {
+            try {
+                Process process = Runtime.getRuntime().exec(cmd);
+                process.waitFor();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
