@@ -6,7 +6,7 @@
 <!--&lt;!&ndash;        <listener class-name="jiraConfigs.JiraListener"></listener>&ndash;&gt;-->
 <!--    </listeners>-->
 
-    <parameter name="server" value="env-dev"></parameter>
+    <parameter name="server" value="env-jenkins"></parameter>
 
     <test name ="Run on Firefox browser">
         <parameter name="browser" value="firefox"></parameter>
