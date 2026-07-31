@@ -7,7 +7,6 @@
 <!--    </listeners>-->
 
     <parameter name="server" value="env-dev"></parameter>
-
     <test name ="Run on Firefox browser">
         <parameter name="browser" value="firefox"></parameter>
         <classes>
