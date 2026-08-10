@@ -25,7 +25,7 @@
     <test name ="Run on Edge browser">
         <parameter name="browser" value="edge"></parameter>
         <classes>
-            <class name="com.nopcommerce.user.TestJenkins"></class>
+            <class name="com.nopcommerce.user.Level_14_Parallel_Testing"></class>
         </classes>
     </test>
 

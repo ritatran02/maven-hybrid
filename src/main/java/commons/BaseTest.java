@@ -53,7 +53,6 @@ public class BaseTest {
                 break;
             case EDGE:
                 EdgeOptions edgeOptions = new EdgeOptions();
-                edgeOptions.addArguments("--inprivate");
                 ThreadDriver.set(new EdgeDriver(edgeOptions));
                 break;
             case HEAD_FIREFOX:
