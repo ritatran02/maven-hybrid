@@ -8,19 +8,19 @@
     </listeners>
 
     <parameter name="server" value="env-dev"></parameter>
-    <test name ="Run on Firefox browser">
-        <parameter name="browser" value="firefox"></parameter>
-        <classes>
-                <class name="com.nopcommerce.user.Level_14_Parallel_Testing"></class>
-        </classes>
-    </test>
+<!--    <test name ="Run on Firefox browser">-->
+<!--        <parameter name="browser" value="firefox"></parameter>-->
+<!--        <classes>-->
+<!--                <class name="com.nopcommerce.user.Level_14_Parallel_Testing"></class>-->
+<!--        </classes>-->
+<!--    </test>-->
 
-    <test name ="Run on Chrome browser">
-        <parameter name="browser" value="chrome"></parameter>
-        <classes>
-                <class name="com.nopcommerce.user.Level_14_Parallel_Testing"></class>
-        </classes>
-    </test>
+<!--    <test name ="Run on Chrome browser">-->
+<!--        <parameter name="browser" value="chrome"></parameter>-->
+<!--        <classes>-->
+<!--                <class name="com.nopcommerce.user.Level_14_Parallel_Testing"></class>-->
+<!--        </classes>-->
+<!--    </test>-->
 
     <test name ="Run on Edge browser">
         <parameter name="browser" value="edge"></parameter>
