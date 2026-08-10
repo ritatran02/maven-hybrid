@@ -22,9 +22,10 @@ import java.util.logging.LogManager;
 public class BaseTest {
     private WebDriver driver;
 
+    public static ThreadLocal<WebDriver> ThreadDriver = new ThreadLocal<WebDriver>();
 
     public WebDriver getDriver() {
-        return driver;
+        return ThreadDriver.get();
     }
 
 
@@ -39,7 +40,7 @@ public class BaseTest {
                 firefoxOptions.addPreference("browser.download.useDownloadDir", true);
                 firefoxOptions.addPreference("browser.helperApps.neverAsk.saveToDisk", "multipart/x-zip,application/zip,application/x-zip-compressed,application/x-compressed,application/msword,application/csv,text/csv,image/png ,image/jpeg, application/pdf, text/html, text/plain,  application/excel, application/vnd.ms-excel, application/x-excel, application/x-msexcel, application/octet-stream");
                 firefoxOptions.addPreference("pdfjs.disabled", true);
-                driver = new FirefoxDriver(firefoxOptions);
+                ThreadDriver.set(new FirefoxDriver(firefoxOptions));
                 break;
             case CHROME:
                 ChromeOptions chromeOptions = new ChromeOptions();
@@ -48,39 +49,40 @@ public class BaseTest {
                 chromePrefs.put("profile.default_content_settings.popups", 0);
                 chromePrefs.put("download.default_directory", GlobalConstants.DOWNLOAD_PATH + "\\downloadFiles");
                 chromeOptions .setExperimentalOption("prefs", chromePrefs);
-                driver = new ChromeDriver(chromeOptions);
+                ThreadDriver.set(new ChromeDriver(chromeOptions));
                 break;
             case EDGE:
                 EdgeOptions edgeOptions = new EdgeOptions();
                 edgeOptions.addArguments("--inprivate");
+                ThreadDriver.set(new EdgeDriver(edgeOptions));
                 break;
             case HEAD_FIREFOX:
                 FirefoxOptions headFirefoxOptions = new FirefoxOptions();
                 headFirefoxOptions.addArguments("-headless");
                 headFirefoxOptions.addArguments("window-size=1920x1080");
-                driver = new FirefoxDriver(headFirefoxOptions);
+                ThreadDriver.set(new FirefoxDriver(headFirefoxOptions));
                 break;
             case HEAD_CHROME:
                 ChromeOptions headChromeOptions = new ChromeOptions();
                 headChromeOptions.addArguments("--headless");
                 headChromeOptions.addArguments("window-size=1920x1080");
-                driver = new ChromeDriver(headChromeOptions);
+                ThreadDriver.set(new ChromeDriver(headChromeOptions));
                 break;
             case HEAD_EDGE:
                 EdgeOptions headEdgeOptions = new EdgeOptions();
                 headEdgeOptions.addArguments("--headless");
                 headEdgeOptions.addArguments("window-size=1920x1080");
-                driver = new EdgeDriver(headEdgeOptions);
+                ThreadDriver.set(new EdgeDriver(headEdgeOptions));
                 break;
             default:
                 throw new RuntimeException("Browser name is not valid!");
         }
 
-        driver.get(url);
+        ThreadDriver.get().get(url);
         // driver.get("https://www.jqueryscript.net/demo/CRUD-Data-Grid-Plugin-jQuery-Quickgrid/");
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
+        ThreadDriver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
        // log.info("=============================== INIT BROWSER AND DRIVER ===============================");
-        return driver;
+        return ThreadDriver.get();
     }
 
     protected int generateRandomNumber() {
@@ -128,8 +130,11 @@ public class BaseTest {
     }
 
     protected void closeBrowser (){
-        if (!(null == driver)){
-            driver.quit();
+        WebDriver currentDriver = ThreadDriver.get();
+
+        if (currentDriver != null) {
+            currentDriver.quit();
+            ThreadDriver.remove();
         }
         //log.info("=============================== CLOSE BROWSER AND DRIVER ===============================");
     }
@@ -162,44 +167,51 @@ public class BaseTest {
 
     protected void closeBrowserDriver() {
         String cmd = null;
+
         try {
-            String osName = System.getProperty("os.name").toLowerCase();
+            WebDriver currentDriver = ThreadDriver.get();
 
-            String driverInstanceName = driver.toString().toLowerCase();
+            if (currentDriver != null) {
 
-            String browserDriverName = null;
+                String osName = System.getProperty("os.name").toLowerCase();
+                String driverInstanceName = currentDriver.toString().toLowerCase();
 
-            if (driverInstanceName.contains("chrome")) {
-                browserDriverName = "chromedriver";
-            } else if (driverInstanceName.contains("firefox")) {
-                browserDriverName = "geckodriver";
-            } else if (driverInstanceName.contains("edge")) {
-                browserDriverName = "msedgedriver";
-            } else if (driverInstanceName.contains("opera")) {
-                browserDriverName = "operadriver";
-            } else {
-                browserDriverName = "safaridriver";
+                String browserDriverName;
+
+                if (driverInstanceName.contains("chrome")) {
+                    browserDriverName = "chromedriver";
+                } else if (driverInstanceName.contains("firefox")) {
+                    browserDriverName = "geckodriver";
+                } else if (driverInstanceName.contains("edge")) {
+                    browserDriverName = "msedgedriver";
+                } else {
+                    browserDriverName = "safaridriver";
+                }
+
+                if (osName.contains("window")) {
+                    cmd = "taskkill /F /FI \"IMAGENAME eq "
+                            + browserDriverName + "*\"";
+                } else {
+                    cmd = "pkill " + browserDriverName;
+                }
+
+                currentDriver.manage().deleteAllCookies();
+                currentDriver.quit();
+
+                ThreadDriver.remove();
             }
 
-            if (osName.contains("window")) {
-                cmd = "taskkill /F /FI \"IMAGENAME eq " + browserDriverName + "*\"";
-            } else {
-                cmd = "pkill " + browserDriverName;
-            }
-
-            if (driver != null) {
-                driver.manage().deleteAllCookies();
-                driver.quit();
-            }
         } catch (Exception e) {
+            e.printStackTrace();
         } finally {
-            try {
-                Process process = Runtime.getRuntime().exec(cmd);
-                process.waitFor();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+            if (cmd != null && !cmd.isEmpty()) {
+                try {
+                    Process process = Runtime.getRuntime().exec(cmd);
+                    process.waitFor();
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
