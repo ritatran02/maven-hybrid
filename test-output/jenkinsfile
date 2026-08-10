@@ -12,7 +12,16 @@ node {
         bat 'mvn clean'
     }
     stage('3 _ Run Test') {
-        bat 'mvn test'
+        bat '''
+                        whoami
+                        echo USERNAME=%USERNAME%
+                        echo USERPROFILE=%USERPROFILE%
+                        echo LOCALAPPDATA=%LOCALAPPDATA%
+                        echo TEMP=%TEMP%
+                        echo TMP=%TMP%
+
+                        mvn test
+                    '''
     }
     stage('4 - Public Report') {
         publishHTML([
