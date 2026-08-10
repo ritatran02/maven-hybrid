@@ -197,7 +197,6 @@ public class BaseTest {
 
                 currentDriver.manage().deleteAllCookies();
                 currentDriver.quit();
-
                 ThreadDriver.remove();
             }
 
