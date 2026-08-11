@@ -92,9 +92,8 @@ pipeline {
         // Notify Success
         success {
             slackSend(
-                channel: '#jenkins',
-                color: 'good',
-                message: "✅ BUILD SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
+                channel: '#all-rita-demo',
+                message: "✅ SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER}"
             )
         }
 
