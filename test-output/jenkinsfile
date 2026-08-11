@@ -1,5 +1,7 @@
-properties([
-    parameters([
+pipeline {
+    agent any
+
+    parameters {
         choice(
             name: 'browser',
             choices: [
@@ -13,50 +15,114 @@ properties([
             ],
             description: 'Select browser to run tests'
         )
-    ])
-])
-
-node {
-    ansiColor('xterm') {
     }
 
-    timestamps {
+    stages {
+
+        stage('0 - Notify Build Start') {
+            steps {
+                slackSend(
+                    channel: '#jenkins',
+                    color: '#439FE0',
+                    message: "🚀 BUILD STARTED - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser}"
+                )
+            }
+        }
+
+        stage('1 - Get Code') {
+            steps {
+                git(
+                    credentialsId: 'rita02',
+                    url: 'https://github.com/ritatran02/maven-hybrid'
+                )
+            }
+        }
+
+        stage('2 - Compiler') {
+            steps {
+                bat 'mvn clean'
+            }
+        }
+
+        stage('3 - Run Test') {
+            steps {
+                echo "Selected Browser: ${params.browser}"
+
+                bat """
+                    whoami
+                    echo USERNAME=%USERNAME%
+                    echo USERPROFILE=%USERPROFILE%
+                    echo LOCALAPPDATA=%LOCALAPPDATA%
+                    echo TEMP=%TEMP%
+                    echo TMP=%TMP%
+
+                    echo Selected Browser: ${params.browser}
+
+                    mvn test -DBROWSER=${params.browser}
+                """
+            }
+        }
+
+        stage('4 - Public Report') {
+            steps {
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: false,
+                    keepAll: false,
+                    reportDir: 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Rita_Pipeline',
+                    reportFiles: 'index.html',
+                    reportName: 'ReportNG HTML',
+                    reportTitles: ''
+                ])
+            }
+        }
+
+        stage('5 - Publish Test Result') {
+            steps {
+                junit(
+                    allowEmptyResults: true,
+                    testResults: '**/target/surefire-reports/*.xml'
+                )
+            }
+        }
     }
 
-    stage('1 - Get Code') {
-        git credentialsId: 'rita02',
-            url: 'https://github.com/ritatran02/maven-hybrid'
-    }
+    post {
 
-    stage('2 - Compiler') {
-        bat 'mvn clean'
-    }
+        // Notify Success
+        success {
+            slackSend(
+                channel: '#jenkins',
+                color: 'good',
+                message: "✅ BUILD SUCCESS - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
+            )
+        }
 
-    stage('3 - Run Test') {
-        bat '''
-            whoami
-            echo USERNAME=%USERNAME%
-            echo USERPROFILE=%USERPROFILE%
-            echo Selected Browser: %browser%
+        // Notify Every Failure
+        failure {
+            slackSend(
+                channel: '#jenkins',
+                color: 'danger',
+                message: "❌ BUILD FAILURE - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
+            )
+        }
 
-            mvn test -DBROWSER=%browser%
-        '''
-    }
+        // Notify Regression
+        regression {
+            slackSend(
+                channel: '#jenkins',
+                color: 'danger',
+                message: "🔴 REGRESSION - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
+            )
+        }
 
-    stage('4 - Public Report') {
-        publishHTML([
-            allowMissing: false,
-            alwaysLinkToLastBuild: false,
-            keepAll: false,
-            reportDir: 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Rita_Pipeline',
-            reportFiles: 'index.html',
-            reportName: 'ReportNG HTML',
-            reportTitles: ''
-        ])
-    }
-
-    stage('5 - Publish Test Result') {
-        junit allowEmptyResults: true,
-            testResults: '**/target/surefire-reports/*.xml'
+        // Notify Back To Normal
+        fixed {
+            slackSend(
+                channel: '#jenkins',
+                color: 'good',
+                message: "🔵 BACK TO NORMAL - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
+            )
+        }
     }
 }
