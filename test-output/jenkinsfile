@@ -40,7 +40,7 @@ pipeline {
 
         stage('2 - Compiler') {
             steps {
-                bat 'mvn clean fgfgfdg'
+                bat 'mvn clean'
             }
         }
 
@@ -49,16 +49,9 @@ pipeline {
                 echo "Selected Browser: ${params.browser}"
 
                 bat """
-                    whoami
-                    echo USERNAME=%USERNAME%
-                    echo USERPROFILE=%USERPROFILE%
-                    echo LOCALAPPDATA=%LOCALAPPDATA%
-                    echo TEMP=%TEMP%
-                    echo TMP=%TMP%
-
                     echo Selected Browser: ${params.browser}
 
-                    mvn test -DBROWSER=${params.browser}
+                    mvn test đssdfd-DBROWSER=${params.browser}
                 """
             }
         }
