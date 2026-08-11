@@ -1,28 +1,41 @@
+properties([
+    parameters([
+        choice(
+            name: 'browser',
+            choices: ['chrome', 'edge', 'firefox'],
+            description: 'Select browser to run test'
+        )
+    ])
+])
+
 node {
     ansiColor('xterm') {
-    // some block
     }
+
     timestamps {
-    // some block
     }
+
     stage('1 - Get Code') {
-        git credentialsId: 'rita02', url: 'https://github.com/ritatran02/maven-hybrid'
+        git credentialsId: 'rita02',
+            url: 'https://github.com/ritatran02/maven-hybrid'
     }
+
     stage('2 - Compiler') {
         bat 'mvn clean'
     }
-    stage('3 _ Run Test') {
-        bat '''
-                        whoami
-                        echo USERNAME=%USERNAME%
-                        echo USERPROFILE=%USERPROFILE%
-                        echo LOCALAPPDATA=%LOCALAPPDATA%
-                        echo TEMP=%TEMP%
-                        echo TMP=%TMP%
 
-                        mvn test
-                    '''
+    stage('3 - Run Test') {
+        bat '''
+            whoami
+            echo USERNAME=%USERNAME%
+            echo USERPROFILE=%USERPROFILE%
+
+            echo Selected browser: %browser%
+
+            mvn test -DBROWSER=%browser%
+        '''
     }
+
     stage('4 - Public Report') {
         publishHTML([
             allowMissing: false,
@@ -31,10 +44,12 @@ node {
             reportDir: 'C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\Rita_Pipeline',
             reportFiles: 'index.html',
             reportName: 'ReportNG HTML',
-            reportTitles: ''])
+            reportTitles: ''
+        ])
     }
+
     stage('5 - Publish Test Result') {
         junit allowEmptyResults: true,
-          testResults: '**/target/surefire-reports/*.xml'
+            testResults: '**/target/surefire-reports/*.xml'
     }
 }
