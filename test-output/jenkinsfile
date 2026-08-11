@@ -51,7 +51,7 @@ pipeline {
                 bat """
                     echo Selected Browser: ${params.browser}
 
-                    mvn test đssdfd-DBROWSER=${params.browser}
+                    mvn test -DBROWSER=${params.browser}
                 """
             }
         }
@@ -96,24 +96,6 @@ pipeline {
                 channel: '#jenkins',
                 color: 'danger',
                 message: "❌ BUILD FAILURE - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
-            )
-        }
-
-        // Notify Regression
-        regression {
-            slackSend(
-                channel: '#jenkins',
-                color: 'danger',
-                message: "🔴 REGRESSION - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
-            )
-        }
-
-        // Notify Back To Normal
-        fixed {
-            slackSend(
-                channel: '#jenkins',
-                color: 'good',
-                message: "🔵 BACK TO NORMAL - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
             )
         }
     }
