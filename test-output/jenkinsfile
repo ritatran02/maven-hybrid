@@ -2,8 +2,16 @@ properties([
     parameters([
         choice(
             name: 'browser',
-            choices: ['chrome', 'edge', 'firefox'],
-            description: 'Select browser to run test'
+            choices: [
+                'FIREFOX',
+                'CHROME',
+                'EDGE',
+                'HEAD_FIREFOX',
+                'HEAD_CHROME',
+                'HEAD_EDGE',
+                'SAFARI'
+            ],
+            description: 'Select browser to run tests'
         )
     ])
 ])
@@ -29,8 +37,7 @@ node {
             whoami
             echo USERNAME=%USERNAME%
             echo USERPROFILE=%USERPROFILE%
-
-            echo Selected browser: %browser%
+            echo Selected Browser: %browser%
 
             mvn test -DBROWSER=%browser%
         '''
