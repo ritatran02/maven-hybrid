@@ -22,7 +22,7 @@ pipeline {
         stage('0 - Notify Build Start') {
             steps {
                 slackSend(
-                    channel: '#jenkins',
+                    channel: '#all-rita-demo',
                     color: '#439FE0',
                     message: "🚀 BUILD STARTED - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser}"
                 )
@@ -93,7 +93,7 @@ pipeline {
         // Notify Every Failure
         failure {
             slackSend(
-                channel: '#jenkins',
+                channel: '#all-rita-demo',
                 color: 'danger',
                 message: "❌ BUILD FAILURE - ${env.JOB_NAME} #${env.BUILD_NUMBER} - Browser: ${params.browser} - ${env.BUILD_URL}"
             )
