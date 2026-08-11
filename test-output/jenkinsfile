@@ -40,7 +40,7 @@ pipeline {
 
         stage('2 - Compiler') {
             steps {
-                bat 'mvn clean'
+                bat 'mvn clean fgfgfdg'
             }
         }
 
